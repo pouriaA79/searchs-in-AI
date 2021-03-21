@@ -1,5 +1,6 @@
+import copy
 import re
-import  copy
+
 moves_butter = []
 moves_robot_to_butter_temp = []
 moves_robot_to_butter = []
@@ -7,8 +8,8 @@ lenght_move_robot = 0
 dept = 0
 
 
-def read_file():
-    file = open("test1.txt", 'r')
+def read_file(str):
+    file = open(str, 'r')
     s = file.readline()
     rows, columns = s.split("\t")
     rows, columns = int(rows), int(columns)
@@ -40,19 +41,20 @@ def butter_map(Xarr, Cost, rows, columns, goal_x, goal_y, flag_butter_or_robot):
     number = 0
     x = 0
     y = 0
+    number = 0
     for i in range(rows):
         for j in range(columns):
             if flag_butter_or_robot == "butter" and xarr[i][j] == "b":
                 number += 1
-                x = i
-                y = j
+                if number == 1:
+                    x = i
+                    y = j
             elif flag_butter_or_robot == "robot" and xarr[i][j] == "r":
                 x = i
                 y = j
-                # root.update({str(number): [i, j]})
-        # for t in range(number):
-        #     x = root.get(str(t))[0]
-        #     y = root.get(str(t))[1]
+
+    if goal_y >= columns or goal_y < 0 or goal_x < 0 or goal_x >= rows or Xarr[goal_x][goal_y] == "x":
+        return False
 
     for i in range(rows * columns):
         found, remaining = IDS(x, y, i + 1, rows, columns, xarr, goal_x, goal_y, flag_butter_or_robot)
@@ -60,6 +62,7 @@ def butter_map(Xarr, Cost, rows, columns, goal_x, goal_y, flag_butter_or_robot):
             if flag_butter_or_robot == "robot":
                 return True
             else:
+
                 return True, i + 1
         elif not remaining:
             return False
@@ -69,41 +72,17 @@ def butter_map(Xarr, Cost, rows, columns, goal_x, goal_y, flag_butter_or_robot):
 
 def action(x, y, move, rows, columns, xarr, flag):
     if move == "D":
-        if x + 1 <= columns - 1 and xarr[x + 1][y] != "x":
-            if flag == "robot":
-                if xarr[x + 1][y] != "b":
-                    return True
-                else:
-                    return False
-            else:
-                return True
+        if x + 1 <= rows - 1 and xarr[x + 1][y] != "x" and xarr[x + 1][y] != "b":
+            return True
     elif move == "U":
-        if x - 1 >= 0 and xarr[x - 1][y] != "x":
-            if flag == "robot":
-                if xarr[x - 1][y] != "b":
-                    return True
-                else:
-                    return False
-            else:
-                return True
+        if x - 1 >= 0 and xarr[x - 1][y] != "x" and xarr[x - 1][y] != "b":
+            return True
     elif move == "L":
-        if y - 1 >= 0 and xarr[x][y - 1] != "x":
-            if flag == "robot":
-                if xarr[x][y - 1] != "b":
-                    return True
-                else:
-                    return False
-            else:
-                return True
+        if y - 1 >= 0 and xarr[x][y - 1] != "x" and xarr[x][y - 1] != "b":
+            return True
     elif move == "R":
-        if y + 1 <= rows - 1 and xarr[x][y + 1] != "x":
-            if flag == "robot":
-                if xarr[x][y + 1] != "b":
-                    return True
-                else:
-                    return False
-            else:
-                return True
+        if y + 1 <= columns - 1 and xarr[x][y + 1] != "x" and xarr[x][y + 1] != "b":
+            return True
     else:
         return False
 
@@ -111,7 +90,6 @@ def action(x, y, move, rows, columns, xarr, flag):
 def IDS(root_x, root_y, depth, rows, columns, xarr, dist_x, dist_y, flag_butter_or_robot):
     global remaining, any_remaining
     directions = ("R", "D", "L", "U")
-    # print(root_x, root_y, dist_x, dist_y)
     if depth == 0 and (root_y != dist_y or root_x != dist_x):
         return False, True
     elif depth == 0 and root_y == dist_y and root_x == dist_x:
@@ -119,7 +97,6 @@ def IDS(root_x, root_y, depth, rows, columns, xarr, dist_x, dist_y, flag_butter_
     elif depth > 0:
         any_remaining = False
         for j in directions:
-            # print(j)
             if j == "R":
                 flag = action(root_x, root_y, "R", rows, columns, xarr, flag_butter_or_robot)
 
@@ -175,8 +152,7 @@ def robot_move(xarr, cost, rows, columns, moves_butter):
     butter = []
     robot = []
     X = []
-    flag_robot = False
-    flag_butter = False
+
     for i in range(rows):
         for j in range(columns):
             if xarr[i][j] == "b":
@@ -193,51 +169,91 @@ def robot_move(xarr, cost, rows, columns, moves_butter):
         if moves_butter[i] == last_move:
             moves_robot_to_butter.append(last_move)
         elif moves_butter[i] != last_move and moves_butter[i] == "R":
-            flag = butter_map(xarr, cost, rows, columns, butter[0], butter[1] - 1, "robot")
-            if flag:
+            if xarr[butter[0]][butter[1] - 1] == "r":
+                moves_robot_to_butter.append("R")
                 xarr[robot[0]][robot[1]] = "n"
                 xarr[butter[0]][butter[1]] = "r"
                 xarr[butter[0]][butter[1] + 1] = "b"
-                for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
-                    moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
-                moves_robot_to_butter.append("R")
                 butter[1] += 1
+                flag = True
+
+            else:
+                flag = butter_map(xarr, cost, rows, columns, butter[0], butter[1] - 1, "robot")
+                if flag:
+                    xarr[robot[0]][robot[1]] = "n"
+                    xarr[butter[0]][butter[1]] = "r"
+                    xarr[butter[0]][butter[1] + 1] = "b"
+                    for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
+                        moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
+                    moves_robot_to_butter.append("R")
+                    butter[1] += 1
         elif moves_butter[i] != last_move and moves_butter[i] == "L":
 
-            flag = butter_map(xarr, cost, rows, columns, butter[0], butter[1] + 1, "robot")
-            if flag:
+            if xarr[butter[0]][butter[1] + 1] == "r":
+                moves_robot_to_butter.append("L")
                 xarr[robot[0]][robot[1]] = "n"
                 xarr[butter[0]][butter[1]] = "r"
                 xarr[butter[0]][butter[1] - 1] = "b"
-                for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
-                    moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
-                moves_robot_to_butter.append("L")
                 butter[1] -= 1
+                flag = True
+            else:
+                flag = butter_map(xarr, cost, rows, columns, butter[0], butter[1] + 1, "robot")
+                if flag:
+                    xarr[robot[0]][robot[1]] = "n"
+                    xarr[butter[0]][butter[1]] = "r"
+                    xarr[butter[0]][butter[1] - 1] = "b"
+                    for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
+                        moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
+                    moves_robot_to_butter.append("L")
+                    butter[1] -= 1
         elif moves_butter[i] != last_move and moves_butter[i] == "U":
-
-            flag = butter_map(xarr, cost, rows, columns, butter[0] + 1, butter[1], "robot")
-            if flag:
+            print(butter[0] + 1)
+            if xarr[butter[0] + 1][butter[1]] == "r":
+                moves_robot_to_butter.append("U")
                 xarr[robot[0]][robot[1]] = "n"
                 xarr[butter[0]][butter[1]] = "r"
                 xarr[butter[0] - 1][butter[1]] = "b"
-                for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
-                    moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
-                moves_robot_to_butter.append("U")
                 butter[0] -= 1
+                flag = True
+
+            else:
+
+                flag = butter_map(xarr, cost, rows, columns, butter[0] + 1, butter[1], "robot")
+                if flag:
+                    xarr[robot[0]][robot[1]] = "n"
+                    xarr[butter[0]][butter[1]] = "r"
+                    xarr[butter[0] - 1][butter[1]] = "b"
+                    for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
+                        moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
+                    moves_robot_to_butter.append("U")
+                    butter[0] -= 1
         elif moves_butter[i] != last_move and moves_butter[i] == "D":
-            flag = butter_map(xarr, cost, rows, columns, butter[0] - 1, butter[1], "robot")
-            if flag:
+            if xarr[butter[0] - 1][butter[1]] == "r":
+                moves_robot_to_butter.append("D")
                 xarr[robot[0]][robot[1]] = "n"
                 xarr[butter[0]][butter[1]] = "r"
                 xarr[butter[0] + 1][butter[1]] = "b"
-                for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
-                    moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
-                moves_robot_to_butter.append("D")
                 butter[0] += 1
+                flag = True
+
+            else:
+                flag = butter_map(xarr, cost, rows, columns, butter[0] - 1, butter[1], "robot")
+                if flag:
+                    xarr[robot[0]][robot[1]] = "n"
+                    xarr[butter[0]][butter[1]] = "r"
+                    xarr[butter[0] + 1][butter[1]] = "b"
+                    for t in range(len(moves_robot_to_butter_temp) - lenght_move_robot):
+                        moves_robot_to_butter.append(moves_robot_to_butter_temp[t])
+                    moves_robot_to_butter.append("D")
+                    butter[0] += 1
+        if not flag:
+            return False
+
         last_move = moves_butter[i]
         lenght_move_robot = len(moves_robot_to_butter_temp)
-        # print(moves_robot_to_butter_temp)
-        # print(moves_robot_to_butter)
+
+
+    return True
 
 
 def robot_cost(Xarr, cost, rows, columns, moves_robot_to_butter):
@@ -269,19 +285,78 @@ def robot_cost(Xarr, cost, rows, columns, moves_robot_to_butter):
 
 
 if __name__ == "__main__":
-    rows, columns, Xarr, cost = read_file()
+    str = "test3.txt"
+    rows, columns, Xarr, cost = read_file(str)
     xarr = copy.deepcopy(Xarr)
+
+    num_butter = 0
     for i in range(rows):
         for j in range(columns):
-            if Xarr[i][j] == "p":
-                goalx = i
-                goaly = j
-                flag, dept = butter_map(Xarr, cost, rows, columns, goalx, goaly, "butter")
-    # print(moves_butter)
-    robot_move(Xarr, cost, rows, columns, moves_butter)
-    # print(moves_butter)
-    cost_robot = robot_cost(xarr, cost, rows, columns, moves_robot_to_butter)
-    print(*moves_robot_to_butter,sep="\t")
-    print(cost_robot)
-    print(dept)
+            if Xarr[i][j] == "b":
+                num_butter += 1
+    flag_end = False
+    num1 = 0
+    num2 = 0
+    last_move = ""
+    last_p = [-1, -1]
 
+    for k in range(num_butter):
+        moves_butter=[]
+        rows, columns, Xarr, cost = read_file(str)
+        num2 = 0
+        num1 = 0
+        flag_end = False
+        for i in range(rows):
+            if flag_end:
+                break
+            for j in range(columns):
+                if flag_end:
+                    break
+
+                if num1 < k:
+                    if Xarr[i][j] == "r":
+                        Xarr[i][j] = "n"
+                    if Xarr[i][j] == "p":
+                        Xarr[i][j] = "x"
+                        num1 += 1
+
+                if num2 < k:
+                    if Xarr[i][j] == "r":
+                        Xarr[i][j] = "n"
+                    if Xarr[i][j] == "b":
+                        Xarr[i][j] = "n"
+                        num2 += 1
+
+                if num1 == k and num2 == k :
+                    if last_move=="D" and k>0:
+                        Xarr[last_p[0]-1][last_p[1]]="r"
+                    elif last_move=="U" and k>0:
+                        Xarr[last_p[0]+1][last_p[1]]="r"
+                    elif last_move=="L" and k>0:
+                        Xarr[last_p[0]][last_p[1]-1]="r"
+                    elif last_move=="R" and k>0:
+                        Xarr[last_p[0]][last_p[1]+1]="r"
+
+                    if Xarr[i][j] == "p":
+
+                        goalx = i
+                        goaly = j
+                        flag, dept = butter_map(Xarr, cost, rows, columns, goalx, goaly, "butter")
+
+                        if not flag:
+                            print("cant pass the butter")
+                        else:
+
+                            if not robot_move(Xarr, cost, rows, columns, moves_butter):
+                                print("cant pass the butter")
+                            else:
+
+                                cost_robot = robot_cost(xarr, cost, rows, columns, moves_robot_to_butter)
+                                if k==num_butter-1:
+                                    print(*moves_robot_to_butter, sep="\t")
+                                    print(cost_robot)
+                                    print(dept)
+                                last_p[0] = goalx
+                                last_p[1] = goaly
+                                last_move = moves_robot_to_butter[-1]
+                                flag_end = True
