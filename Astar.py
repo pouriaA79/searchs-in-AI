@@ -203,9 +203,10 @@ def get_career_num(objects_map, career):
 
 
 if __name__ == '__main__':
+    map_num = 2
     input_dir = "input"
     inputs = os.listdir(input_dir)
-    rows, columns, objects, cost = read_input(input_dir + os.sep + inputs[6])
+    rows, columns, objects, cost = read_input(input_dir + os.sep + inputs[map_num])
 
     all_actions = []
     all_cost = 0
@@ -278,8 +279,24 @@ if __name__ == '__main__':
             if deep > all_deep:
                 all_deep = deep
     if not can_not:
-        print(all_actions)
+        robot_moves = ""
+        for each_butter_action in all_actions:
+            for actions in each_butter_action:
+                for item in actions:
+                    if item == 'UP':
+                        robot_moves += "U "
+                    elif item == 'DOWN':
+                        robot_moves += "D "
+                    elif item == 'LEFT':
+                        robot_moves += "L "
+                    elif item == 'RIGHT':
+                        robot_moves += "R "
+
+        print(robot_moves)
         print(all_cost)
         print(all_deep)
+        res_path = "output"
+        with open(res_path + os.sep + "result" + (str(map_num + 1)) + ".txt", "x") as f:
+            f.write(robot_moves + "\n" + str(all_cost) + "\n" + str(all_deep))
     else:
         print("cant pass the butter")
