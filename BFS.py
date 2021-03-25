@@ -653,6 +653,7 @@ if __name__ == "__main__":
                                 if k == num_butter - 1:
                                     print(*moves_robot_to_butter, sep="\t")
                                     print(cost_robot)
+                                    print(int(len(moves_butter)/2))
                                 Xarr[i][j] = "x"
 
                                 last_move = moves_robot_to_butter[-1]
