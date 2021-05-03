@@ -292,10 +292,13 @@ if __name__ == '__main__':
                     elif item == 'RIGHT':
                         robot_moves += "R "
 
-        print(robot_moves)
-        print(all_cost)
-        print(all_deep)
+        # print(robot_moves)
+        # print(all_cost)
+        # print(all_deep)
         res_path = "output"
+        file_path = res_path + os.sep + "result" + (str(map_num + 1)) + ".txt"
+        if os.path.exists(file_path):
+            os.remove(file_path)
         with open(res_path + os.sep + "result" + (str(map_num + 1)) + ".txt", "x") as f:
             f.write(robot_moves + "\n" + str(all_cost) + "\n" + str(all_deep))
     else:
