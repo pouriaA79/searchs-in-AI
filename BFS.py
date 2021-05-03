@@ -292,7 +292,7 @@ def bidirectional_bfs(dest_x, dest_y, row, col, arr, flag_butter_or_robot):
                     moves_butter_to_p.append("L")
             return True, moves_butter_to_p
 
-    return 0, [55]
+   # return 0,# [55]
 
 
 def road(x, parent, f0, f1):
