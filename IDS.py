@@ -1,6 +1,6 @@
 import copy
 import re
-
+import time
 moves_butter = []
 moves_robot_to_butter_temp = []
 moves_robot_to_butter = []
@@ -207,7 +207,7 @@ def robot_move(xarr, cost, rows, columns, moves_butter):
                     moves_robot_to_butter.append("L")
                     butter[1] -= 1
         elif moves_butter[i] != last_move and moves_butter[i] == "U":
-            print(butter[0] + 1)
+            # print(butter[0] + 1)
             if xarr[butter[0] + 1][butter[1]] == "r":
                 moves_robot_to_butter.append("U")
                 xarr[robot[0]][robot[1]] = "n"
@@ -252,7 +252,6 @@ def robot_move(xarr, cost, rows, columns, moves_butter):
         last_move = moves_butter[i]
         lenght_move_robot = len(moves_robot_to_butter_temp)
 
-
     return True
 
 
@@ -285,7 +284,9 @@ def robot_cost(Xarr, cost, rows, columns, moves_robot_to_butter):
 
 
 if __name__ == "__main__":
-    str = "test3.txt"
+    start_time = time.time()
+
+    str = "test5.txt"
     rows, columns, Xarr, cost = read_file(str)
     xarr = copy.deepcopy(Xarr)
 
@@ -301,7 +302,7 @@ if __name__ == "__main__":
     last_p = [-1, -1]
 
     for k in range(num_butter):
-        moves_butter=[]
+        moves_butter = []
         rows, columns, Xarr, cost = read_file(str)
         num2 = 0
         num1 = 0
@@ -327,15 +328,15 @@ if __name__ == "__main__":
                         Xarr[i][j] = "n"
                         num2 += 1
 
-                if num1 == k and num2 == k :
-                    if last_move=="D" and k>0:
-                        Xarr[last_p[0]-1][last_p[1]]="r"
-                    elif last_move=="U" and k>0:
-                        Xarr[last_p[0]+1][last_p[1]]="r"
-                    elif last_move=="L" and k>0:
-                        Xarr[last_p[0]][last_p[1]-1]="r"
-                    elif last_move=="R" and k>0:
-                        Xarr[last_p[0]][last_p[1]+1]="r"
+                if num1 == k and num2 == k:
+                    if last_move == "D" and k > 0:
+                        Xarr[last_p[0] - 1][last_p[1]] = "r"
+                    elif last_move == "U" and k > 0:
+                        Xarr[last_p[0] + 1][last_p[1]] = "r"
+                    elif last_move == "L" and k > 0:
+                        Xarr[last_p[0]][last_p[1] - 1] = "r"
+                    elif last_move == "R" and k > 0:
+                        Xarr[last_p[0]][last_p[1] + 1] = "r"
 
                     if Xarr[i][j] == "p":
 
@@ -351,11 +352,14 @@ if __name__ == "__main__":
                                 print("cant pass the butter")
                             else:
 
-                                cost_robot = robot_cost(xarr, cost, rows, columns, moves_robot_to_butter)
-                                if k==num_butter-1:
+                                # cost_robot = robot_cost(xarr, cost, rows, columns, moves_robot_to_butter)
+                                cost_robot = len(moves_robot_to_butter)
+                                if k == num_butter - 1:
                                     print(*moves_robot_to_butter, sep="\t")
                                     print(cost_robot)
                                     print(dept)
+                                    print("--- %s seconds ---" % (time.time() - start_time))
+
                                 last_p[0] = goalx
                                 last_p[1] = goaly
                                 last_move = moves_robot_to_butter[-1]
